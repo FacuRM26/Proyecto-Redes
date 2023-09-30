@@ -3,9 +3,9 @@ package Protocolos;
 import clases.*;
 
 import java.util.Random;
-import java.util.random.*;
 
-public class Protocol {
+public class Maquina {
+
     public static final int MAX_PKT = 1024; // Determina el tamaño del paquete en bytes
     public static final int MAX_SEQ = 255; // Define el valor máximo para la secuencia
 
@@ -28,7 +28,7 @@ public class Protocol {
         event = EventType.FRAME_ARRIVAL; // Ejemplo
     }
 
-// Modifica el paquete para simular la entrada de un buffer
+    // Modifica el paquete para simular la entrada de un buffer
     public static void from_network_layer(Packet buffer) {
         // Se crea el paquete ficticio utilizando un randomize de cuatro números
         Random random = new Random();

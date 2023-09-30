@@ -3,14 +3,14 @@ package clases;
 import static Protocolos.Protocol.MAX_PKT;
 
 public class Packet {
-    private byte[] data = new byte[MAX_PKT];
+    private String data;
 
-    public byte[] getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
-        if (data.length <= MAX_PKT) {
+    public void setData(String data) {
+        if (data.length() <= MAX_PKT) {
             this.data = data;
         }
     }
