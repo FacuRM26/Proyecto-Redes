@@ -1,6 +1,6 @@
 package clases;
 
-import static Protocolos.Protocol.MAX_SEQ;
+import static Protocolos.Maquina.MAX_SEQ;
 
 public class Frame {
     private String kind; // ¿Qué tipo de frame es?
@@ -60,5 +60,4 @@ public class Frame {
                 "\nAck: " + ack +
                 "\nPacket Data:\n" + packet.getData();
     }
-
 }

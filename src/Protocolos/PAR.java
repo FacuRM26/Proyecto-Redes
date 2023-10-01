@@ -5,6 +5,7 @@ import static Protocolos.Protocol.*;
 
 public class PAR {
 
+    /*/
     public static void sender3() {
 
         SeqNr next_frame_to_send = new SeqNr(); // Crea un nuevo objeto SeqNr
@@ -27,11 +28,11 @@ public class PAR {
             start_timer(s.getSeq());
             wait_for_event(event);
             if (event == EventType.FRAME_ARRIVAL) {
-                from_physical_layer(s); /* get the acknowledgement */
+                from_physical_layer(s); /* get the acknowledgement
                 if (s.getAck() == next_frame_to_send) {
-                    stop_timer(s.getAck()); /* turn the timer off */
-                    from_network_layer(buffer); /* get the next one to send */
-                    next_frame_to_send.setValue(next_frame_to_send.getValue()+1);; /* invert next frame to send */
+                    stop_timer(s.getAck()); /* turn the timer off
+                    from_network_layer(buffer); /* get the next one to send
+                    next_frame_to_send.setValue(next_frame_to_send.getValue()+1);; /* invert next frame to send
                 }
             }
         }
@@ -61,5 +62,5 @@ public class PAR {
             System.out.println(r); // Imprime los datos de la trama
         }
     }
-
+    */
 }

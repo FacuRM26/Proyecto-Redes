@@ -1,6 +1,6 @@
 package clases;
 
-import static Protocolos.Protocol.MAX_PKT;
+import static Protocolos.Maquina.MAX_PKT;
 
 public class Packet {
     private String data;

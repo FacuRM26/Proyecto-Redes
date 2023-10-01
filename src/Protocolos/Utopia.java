@@ -1,35 +1,37 @@
 package Protocolos;
 import clases.*;
+import java.util.Observable;
+import java.util.Observer;
 
 import static Protocolos.Protocol.*;
 
 public class Utopia {
 
-    public static void sender1() {
-        SeqNr seq = new SeqNr(); // Crea un nuevo objeto SeqNr
-        SeqNr ack = new SeqNr(); // Crea un nuevo objeto SeqNr
-        Packet packet = new Packet();// Crea un nuevo paquete
-        Frame s = new Frame(FrameKind.DATA, seq, ack, packet); // Asigna el paquete al Frame
+    public static Protocol protocol = new Protocol();
+    public static Maquina sender1 = new Maquina("Sender1");
+    public static Maquina receiver1 = new Maquina("Receiver1");
+   // protocol.setNetworkLayer("Nuevo valor de networkLayer");
 
+
+    public static void sender() {
         Packet buffer = new Packet();
+        Frame s = new Frame("", 0, 0, buffer); // Asigna el paquete al Frame
 
         while (true) {
-            from_network_layer(buffer); // Obtén algo para enviar desde la capa de red
+            sender1.from_network_layer(buffer); // Obtén algo para enviar desde la capa de red
             s.setInfo(buffer); // Copia el paquete en la trama para la transmisión
-            to_physical_layer(s); // Envía la trama a la capa física
-            s.toString(); // Imprime los datos de la trama
+            sender1.to_physical_layer(s, protocol); // Envía la trama a la capa física
+            System.out.println(sender1.name + ": Frame " + s.getSeq() + " Enviado");
         }
     }
 
-    public static void receiver1() {
-        Frame r = new Frame(FrameKind.DATA, new SeqNr(0), new SeqNr(0), new Packet());
-        EventType event = EventType.FRAME_ARRIVAL;
-
+    public static void receiver() {
+        protocol.addObserver(receiver1);
+        Frame r = new Frame("", 0, 0, new Packet());
         while (true) {
-            wait_for_event(event); // Solo es posible la llegada de una trama
-            from_physical_layer(r); // Obtén la trama entrante
-            to_network_layer(r.getInfo()); // Pasa los datos a la capa de red
-            System.out.println(r); // Imprime los datos de la trama
+            receiver1.wait_for_event(); // Solo es posible la llegada de una trama
+            receiver1.from_physical_layer(r, protocol); // Obtén la trama entrante
+            receiver1.to_network_layer(r.getInfo()); // Pasa los datos a la capa de red
         }
     }
 }
