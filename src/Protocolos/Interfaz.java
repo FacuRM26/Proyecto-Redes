@@ -1,17 +1,19 @@
 package Protocolos;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class EjemploEvento extends JFrame implements ActionListener {
+public class Interfaz extends JFrame implements ActionListener {
 
     private JButton btnIniciar, btnPausar, btnResumir;
     private JComboBox<String> comboBoxProtocolos;
     private JLabel lblProtocolo, lblPorcentajeError, lblSender, lblReceiver;
     private JTextField txtPorcentajeError, txtSender, txtReceiver;
+    private ProtocolWorker protocolWorker;
 
-    public EjemploEvento() {
+    public Interfaz() {
         setTitle("Interfaz Gráfica");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,7 +30,6 @@ public class EjemploEvento extends JFrame implements ActionListener {
         btnIniciar = new JButton("Iniciar");
         btnPausar = new JButton("Pausar");
         btnResumir = new JButton("Resumir");
-
 
         add(lblProtocolo);
         add(comboBoxProtocolos);
@@ -49,7 +50,6 @@ public class EjemploEvento extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         if (e.getSource() == btnIniciar) {
             String porcentajeErrorStr = txtPorcentajeError.getText();
             double porcentajeError = 0.0;
@@ -64,12 +64,17 @@ public class EjemploEvento extends JFrame implements ActionListener {
                 }
             }
 
-            double nuevoSenderValor = porcentajeError + 1;
-            txtSender.setText(Double.toString(nuevoSenderValor));
-
             String protocoloSeleccionado = (String) comboBoxProtocolos.getSelectedItem();
-            txtReceiver.setText(protocoloSeleccionado);
 
+            txtSender.setText(("estado del sender"));
+            txtReceiver.setText("estado del receiver");
+
+            if (protocolWorker != null) {
+                protocolWorker.cancel(true); // Detener el trabajo anterior si existe
+            }
+
+            protocolWorker = new ProtocolWorker(protocoloSeleccionado, this);
+            protocolWorker.execute(); // Ejecutar el trabajo en segundo plano
         } else if (e.getSource() == btnPausar) {
             // Pausar
         } else if (e.getSource() == btnResumir) {
@@ -77,10 +82,63 @@ public class EjemploEvento extends JFrame implements ActionListener {
         }
     }
 
+    public void actualizarSenderText(String mensaje) {
+        SwingUtilities.invokeLater(() -> txtSender.setText(mensaje));
+    }
+
+    public void actualizarReceiverText(String mensaje) {
+        SwingUtilities.invokeLater(() -> txtReceiver.setText(mensaje));
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            EjemploEvento ventana = new EjemploEvento();
+            Interfaz ventana = new Interfaz();
             ventana.setVisible(true);
         });
+    }
+}
+
+class ProtocolWorker extends SwingWorker<Void, Void> {
+    private String protocolo;
+    private Interfaz interfaz;
+
+    public ProtocolWorker(String protocolo, Interfaz interfaz) {
+        this.protocolo = protocolo;
+        this.interfaz = interfaz;
+    }
+
+    @Override
+    protected Void doInBackground() throws Exception {
+        switch (protocolo){
+            case("Protocolo Utopia"):
+                Utopia.setInterfaz(interfaz);
+
+                Thread senderThread = new Thread(Utopia::sender);
+                Thread receiverThread = new Thread(Utopia::receiver);
+
+                senderThread.start();
+                receiverThread.start();
+
+                try {
+                    // Espera a que los hilos terminen (puedes ajustar el tiempo de espera según tus necesidades)
+                    senderThread.join();
+                    receiverThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case ("Protocolo Stop-and-wait"):
+                break;
+            case ("Protocolo PAR"):
+                break;
+            case ("Protocolo sliding window de 1 bit"):
+                break;
+            case ("Protocolo go-back-n"):
+                break;
+            case ("Protocolo selective-repeat"):
+                break;
+        }
+
+        return null;
     }
 }

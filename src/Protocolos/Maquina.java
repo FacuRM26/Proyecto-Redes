@@ -16,6 +16,8 @@ public class Maquina implements Observer {
 
     public String name;
 
+    private Interfaz interfaz;
+
     public boolean event = false;
 
     public Maquina(String name) {
@@ -80,12 +82,6 @@ public class Maquina implements Observer {
         s.setSeq(seq);
         s.setAck(ack);
 
-        // Ejemplo: Imprimir los datos de la tram
-        /*System.out.println("FrameKind: " + s.getKind());
-        System.out.println("Ack: " + s.getAck());
-        System.out.println("Info: " + s.getInfo().getData());*/
-
-
         Frame r = new Frame();
         r.setAck(s.getAck());
         r.setInfo(s.getInfo());
@@ -93,7 +89,7 @@ public class Maquina implements Observer {
         r.setSeq(s.getSeq());
 
         protocol.setPhysicalLayer(r);
-        System.out.println(name + ": Frame " + s.getSeq() + " Enviado");
+        interfaz.actualizarSenderText(name + ": Frame " + s.getSeq() + " Enviado");
     }
 
     // Muestra la información en la capa de red
@@ -101,14 +97,13 @@ public class Maquina implements Observer {
         System.out.println("Packet data: " + packet.getData());
     }
 
-    /* Go get an inbound frame from the physical layer and copy it to r. */
     public void from_physical_layer(Frame r, Protocol protocol) {
         Frame s = protocol.getPhysicalLayer();
         r.setAck(s.getAck());
         r.setInfo(s.getInfo());
         r.setKind(s.getKind());
         r.setSeq(s.getSeq());
-        System.out.println(name + ": ha recibido el frame " + r.getSeq());
+        interfaz.actualizarReceiverText(name + ": ha recibido el frame " + r.getSeq());
     }
 
     public static void start_timer(int k) {
@@ -126,6 +121,10 @@ public class Maquina implements Observer {
         } else {
             stopThread = true;
         }
+    }
+
+    public void setInterfaz(Interfaz interfaz) {
+        this.interfaz = interfaz;
     }
 
     @Override
