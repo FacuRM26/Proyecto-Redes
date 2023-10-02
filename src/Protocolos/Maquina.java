@@ -10,11 +10,13 @@ public class Maquina implements Observer {
     public static final int MAX_PKT = 1024; // Determina el tamaño del paquete en bytes
     public static final int MAX_SEQ = 255; // Define el valor máximo para la secuencia
 
+    private volatile boolean stopThread = false;
+
     public static int actFrame = 0;
 
-    public static String name;
+    public String name;
 
-    public static boolean event = false;
+    public boolean event = false;
 
     public Maquina(String name) {
         this.name = name;
@@ -50,7 +52,7 @@ public class Maquina implements Observer {
     }
 
     /* Pass the frame to the physical layer for transmission. */
-    public static void to_physical_layer(Frame s, Protocol protocol) {
+    public void to_physical_layer(Frame s, Protocol protocol) {
 
         // Se usa un randomize para elegir el tipo de FRAME
         Random random = new Random();
@@ -91,6 +93,7 @@ public class Maquina implements Observer {
         r.setSeq(s.getSeq());
 
         protocol.setPhysicalLayer(r);
+        System.out.println(name + ": Frame " + s.getSeq() + " Enviado");
     }
 
     // Muestra la información en la capa de red
@@ -99,7 +102,7 @@ public class Maquina implements Observer {
     }
 
     /* Go get an inbound frame from the physical layer and copy it to r. */
-    public static void from_physical_layer(Frame r, Protocol protocol) {
+    public void from_physical_layer(Frame r, Protocol protocol) {
         Frame s = protocol.getPhysicalLayer();
         r.setAck(s.getAck());
         r.setInfo(s.getInfo());
@@ -117,11 +120,11 @@ public class Maquina implements Observer {
     }
 
     // Define la macro inc de forma similar a como se hace en C
-    private static void inc() {
+    private synchronized void inc() {
         if (actFrame < MAX_SEQ) {
             actFrame = actFrame + 1;
         } else {
-            actFrame = 0;
+            stopThread = true;
         }
     }
 
