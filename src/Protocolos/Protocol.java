@@ -45,4 +45,10 @@ public class Protocol extends Observable {
     public static void setReciber(Maquina reciber) {
         Reciber = reciber;
     }
+
+     public String randomAvailability (){
+        Random random = new Random();
+        String numAle = String.valueOf(random.nextInt(2));
+        return numAle;
+    }
 }
