@@ -128,6 +128,21 @@ class ProtocolWorker extends SwingWorker<Void, Void> {
                 }
                 break;
             case ("Protocolo Stop-and-wait"):
+                StopAndWait.setInterfaz(interfaz);
+
+                Thread senderThread2 = new Thread(StopAndWait::sender);
+                Thread receiverThread2 = new Thread(StopAndWait::receiver);
+
+                senderThread2.start();
+                receiverThread2.start();
+
+                try {
+                    // Espera a que los hilos terminen (puedes ajustar el tiempo de espera según tus necesidades)
+                    senderThread2.join();
+                    receiverThread2.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 break;
             case ("Protocolo PAR"):
                 break;
