@@ -20,8 +20,15 @@ public class Maquina implements Observer {
 
     public boolean event = false;
 
+    public long tInicio;
+    public long tFinal;
+    public String ttransc;
+
     public Maquina(String name) {
         this.name = name;
+        tInicio = -1;
+        tFinal = -1;
+        ttransc = "00:00:000";
     }
 
     public synchronized void wait_for_event() {
@@ -106,12 +113,62 @@ public class Maquina implements Observer {
         interfaz.actualizarReceiverText(name + ": ha recibido el frame " + r.getSeq());
     }
 
-    public static void start_timer(int k) {
-        //pendiente
+    public void start_timer(int k) {
+        tInicio = System.currentTimeMillis();
     }
 
-    public static void stop_timer(int k) {
-        //pendiente
+    public void stop_timer(int k) {
+        tFinal = System.currentTimeMillis();
+        calcularTiempoTransc();
+    }
+    
+    private void calcularTiempoTransc(){ 
+        if (tInicio == -1 || tFinal == -1){
+            ttransc = ("00:00:000");
+            return ;
+        }  
+        long milesimas = tFinal-tInicio;
+        long segundos = milesimas /1000;
+        long minutos = segundos/60;
+        milesimas -= segundos*1000;
+        segundos -= minutos*60;
+        
+        String min;
+        String seg;
+        String mil;
+        
+        if( minutos < 10 ) {
+            min = "0" + minutos;
+        }else{ 
+            min = Long.toString(minutos);
+        }
+
+        if( segundos < 10 ) {
+            seg = "0" + segundos;                
+        }else{
+            seg = Long.toString(segundos);
+        }
+
+        if( milesimas < 10 ){
+            mil = "00" + milesimas;
+        }else{
+            if( milesimas < 100 ) {
+                mil = "0" + milesimas;
+            }else{
+                mil = Long.toString(milesimas);
+            }
+        }
+        ttransc = (min + ":" + seg + ":" + mil); 
+    }
+    
+    public String tTranscurrido(){
+        return ttransc;
+    }
+    
+    public void setCronometro(){
+        tInicio = -1;
+        tFinal = -1;
+        ttransc = "00:00:000";
     }
 
     // Define la macro inc de forma similar a como se hace en C
@@ -134,5 +191,9 @@ public class Maquina implements Observer {
             // Realiza la acción que necesitas cuando cambia networkLayer
             event_occurred(); // Notifica que ha ocurrido un evento
         }
+    }
+
+    public void setMAX_SEQ(int maxSeq) {
+        this.MAX_SEQ = maxSeq;
     }
 }
