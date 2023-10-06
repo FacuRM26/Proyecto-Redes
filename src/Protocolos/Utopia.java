@@ -12,6 +12,7 @@ public class Utopia {
 
     public static Maquina sender1 = new Maquina("Sender1");
     public static Maquina receiver1 = new Maquina("Receiver1");
+    public  static Event event;
 
     public static Interfaz interfaz;
 
@@ -34,8 +35,9 @@ public class Utopia {
         receiver1.setInterfaz(Utopia.interfaz); //se setea para configurar los mensajes de la interfaz
         protocol.addObserver(receiver1);
         Frame r = new Frame("", 0, 0, new Packet());
+
         while (true) {
-            receiver1.wait_for_event(); //espera a que haya algo en la capa fisica
+            receiver1.wait_for_event(event); //espera a que haya algo en la capa fisica
             receiver1.from_physical_layer(r, protocol);
             receiver1.to_network_layer(r.getInfo()); // Pasa los datos a la capa de red
             try {
@@ -46,8 +48,11 @@ public class Utopia {
         }
     }
 
-    public static void setInterfaz(Interfaz interfaz) {
+    public static void setInterfaz(Interfaz interfaz, double error) {
         Utopia.interfaz = interfaz;
+        sender1.setError(error);
+        receiver1.setError(error);
+        event = new Event("");
     }
 
 }

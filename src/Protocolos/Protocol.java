@@ -9,7 +9,11 @@ import java.util.Random;
 public class Protocol extends Observable {
 
     public static Packet networkLayer;
+    public boolean enableNewtWork = true;
+    public boolean firstFlag = false;
     public static Frame physicalLayer;
+
+
 
     public static Maquina Sender, Reciber;
 
@@ -23,7 +27,7 @@ public class Protocol extends Observable {
     }
 
     public void setNetworkLayer(Packet networkLayer) {
-        if (!networkLayer.equals(this.networkLayer)) {
+        if (!networkLayer.equals(this.networkLayer) && this.enableNewtWork) {
             this.networkLayer = networkLayer;
             setChanged();
             notifyObservers(networkLayer); // Notifica a los observadores del cambio
@@ -34,7 +38,7 @@ public class Protocol extends Observable {
         if (!physicalLayer.equals(this.physicalLayer)) {
             this.physicalLayer = physicalLayer;
             setChanged();
-            notifyObservers(physicalLayer); // Notifica a los observadores del cambio
+            notifyObservers(this); // Notifica a los observadores del cambio
         }
     }
 
@@ -46,7 +50,25 @@ public class Protocol extends Observable {
         Reciber = reciber;
     }
 
-     public String randomAvailability (){
+    public void setEnableNewtWork(boolean enable){
+        this.enableNewtWork = enable;
+        setChanged();
+        notifyObservers(this);
+    }
+
+    public boolean isEnableNewtWork() {
+        return enableNewtWork;
+    }
+
+    public  void resetNetwork(boolean enable){
+        this.enableNewtWork = enable;
+    }
+
+    public boolean isFirstFlag() {
+        return firstFlag;
+    }
+
+    public String randomAvailability (){
         Random random = new Random();
         String numAle = String.valueOf(random.nextInt(2));
         return numAle;

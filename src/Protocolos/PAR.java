@@ -5,62 +5,90 @@ import static Protocolos.Protocol.*;
 
 public class PAR {
 
-    /*/
-    public static void sender3() {
+    public static Protocol protocol = new Protocol();
+    public static Protocol protocol2 = new Protocol();
 
-        SeqNr next_frame_to_send = new SeqNr(); // Crea un nuevo objeto SeqNr
+    public static Maquina sender3 = new Maquina("sender3");
+    public static Maquina receiver3 = new Maquina("receiver3");
 
-        SeqNr ack = new SeqNr(); // Crea un nuevo objeto SeqNr
-        SeqNr seq = new SeqNr(); // Crea un nuevo objeto SeqNr
-        Packet packet = new Packet();// Crea un nuevo paquete
-        Frame s = new Frame(FrameKind.DATA, seq, ack, packet); // Asigna el paquete al Frame
+    public static Event event;
 
-        EventType event = EventType.FRAME_ARRIVAL;
-        next_frame_to_send.setValue(0);
+    public static Interfaz interfaz;
+
+    public static void sender() {
+        protocol2.addObserver(sender3);
+        sender3.setInterfaz(PAR.interfaz); //se setea para configurar los mensajes de la interfaz
+
+
         Packet buffer = new Packet();
-        from_network_layer(buffer); // Obtén algo para enviar desde la capa de red
+        Frame s = new Frame("", 0, 0, buffer);
+        int nxtSend = 0; // Asigna el paquete al Frame
+        sender3.from_network_layer(buffer); // Obtén algo para enviar desde la capa de red
 
         while (true) {
-            s.setInfo(buffer); // Copia el paquete en la trama para la transmisión
-            s.setSeq(next_frame_to_send);
-            to_physical_layer(s); // Envía la trama a la capa física
-            s.toString(); // Imprime los datos de la trama
-            start_timer(s.getSeq());
-            wait_for_event(event);
-            if (event == EventType.FRAME_ARRIVAL) {
-                from_physical_layer(s); /* get the acknowledgement
-                if (s.getAck() == next_frame_to_send) {
-                    stop_timer(s.getAck()); /* turn the timer off
-                    from_network_layer(buffer); /* get the next one to send
-                    next_frame_to_send.setValue(next_frame_to_send.getValue()+1);; /* invert next frame to send
+            s.setInfo(buffer);
+            s.setSeq(nxtSend); //0
+            sender3.to_physical_layer_manual(s, protocol); // Envía el frma a la capa física
+            //sender3.start_timer(nxtSend);
+
+            sender3.wait_for_event(event); //espera
+            if (event.getType() == "frame_arrival"){
+                sender3.from_physical_layer(s, protocol2); //iguala
+                if (s.getAck() == nxtSend) { //0 == 0
+                   // sender3.stop_timer(s.getAck());
+                    sender3.from_network_layer(buffer); //nuevo paquete
+                    nxtSend = sender3.incFrame(nxtSend); // 1
                 }
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public static void receiver3() {
-        SeqNr frame_expected = new SeqNr();
-        Frame r = new Frame(FrameKind.DATA, new SeqNr(0), new SeqNr(0), new Packet());
-        Frame s = new Frame(FrameKind.DATA, new SeqNr(0), new SeqNr(0), new Packet());
-        EventType event = EventType.FRAME_ARRIVAL;
-        frame_expected.setValue(0);
+    public static void receiver() {
+        receiver3.setInterfaz(PAR.interfaz); //se setea para configurar los mensajes de la interfaz
+        protocol.addObserver(receiver3);
+
+        int frame_expected = 0;
+        Frame r = new Frame("", 0, 0, new Packet());
+        Frame s = new Frame("", 0, 0, new Packet());
+
+        Event event1 = new Event("");
 
         while (true) {
-            wait_for_event(event); // Solo es posible la llegada de una trama
-            if (event == EventType.FRAME_ARRIVAL){
-                from_physical_layer(r); // Obtén la trama entrante
-                if (r.getSeq().getValue() == 0){
-                    to_network_layer(r.getInfo()); // Pasa los datos a la capa de red
-                    frame_expected.setValue(frame_expected.getValue()+1);
+            receiver3.wait_for_event(event1); //espera a que haya algo en la capa fisica
+
+            if (event1.getType() == "frame_arrival"){ //acá
+                receiver3.from_physical_layer(r, protocol); //iguala
+                if (r.getSeq()==frame_expected){
+                    receiver3.to_network_layer(r.getInfo()); //PRINT
+                    System.out.println(frame_expected);
+                    frame_expected = receiver3.incFrame(frame_expected); //1
                 }
             }
+            r.setAck(1 - frame_expected); // 0
 
-            SeqNr ack = s.getAck();
-            ack.setValue(1- frame_expected.getValue());
-            s.setAck(ack);
+            receiver3.to_physical_layer_manual(r, protocol2); //Envia
 
-            System.out.println(r); // Imprime los datos de la trama
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
-    */
+
+    public static void setInterfaz(Interfaz interfaz, double error) {
+        PAR.interfaz = interfaz;
+        sender3.setError(error);
+        receiver3.setError(error);
+        event = new Event("");
+        sender3.setMAX_SEQ(1);
+        receiver3.setMAX_SEQ(1);
+    }
+
 }

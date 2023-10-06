@@ -1,5 +1,6 @@
 package Protocolos;
 
+import clases.Event;
 import clases.Frame;
 import clases.Packet;
 import clases.EventType; // Importa tu enum EventType
@@ -11,6 +12,7 @@ public class StopAndWait {
     public static Maquina sender2 = new Maquina("Sender1");
     public static Maquina receiver2 = new Maquina("Receiver1");
     public static Interfaz interfaz;
+    public static Event event;
 
 
     public static void sender() {
@@ -24,7 +26,7 @@ public class StopAndWait {
             s.setInfo(buffer);
             sender2.to_physical_layer(s, protocol);
             System.out.println("Sender2: Frame " + s.getSeq() + " Enviado");
-            sender2.wait_for_event();
+            sender2.wait_for_event(event);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -40,10 +42,11 @@ public class StopAndWait {
         Frame s = new Frame("", 0, 0, new Packet());
 
         while (true) {
-            receiver2.wait_for_event();
+            receiver2.wait_for_event(event);
             receiver2.from_physical_layer(r, protocol);
-            if(r.getInfo()!= null) {
+            if(r.getAck() == 0) {
                 receiver2.to_network_layer(r.getInfo());
+                r.setAck(1);
                 receiver2.to_physical_layer(r, protocol);
             }
             try {
@@ -53,7 +56,10 @@ public class StopAndWait {
             }
         }
     }
-    public static void setInterfaz(Interfaz interfaz) {
+    public static void setInterfaz(Interfaz interfaz, double error) {
         StopAndWait.interfaz = interfaz;
+        sender2.setError(error);
+        receiver2.setError(error);
+        event = new Event("");
     }
 }
